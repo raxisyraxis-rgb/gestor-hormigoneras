@@ -1,0 +1,17 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-l
+  RewriteRule . /index.html [L]
+</IfModule>
+# Forzar content-type correcto para archivos JS y WASM (Vite, React moderno)
+AddType application/javascript .js
+AddType application/wasm .wasm
+
+# Asegura que los archivos servidos de build tengan el mime correcto
+<FilesMatch "\.(js|mjs|ts|tsx)$">
+  AddType application/javascript .js
+</FilesMatch>
