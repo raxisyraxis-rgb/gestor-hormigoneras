@@ -29,11 +29,26 @@ jobs:
       env:
         CI: false
     
+    # Detectar el directorio de build
+    - name: Detect build directory
+      id: detect-build-dir
+      run: |
+        if [ -d "dist" ]; then
+          echo "build_dir=dist" >> $GITHUB_OUTPUT
+          echo "✅ Directorio detectado: dist/"
+        elif [ -d "build" ]; then
+          echo "build_dir=build" >> $GITHUB_OUTPUT
+          echo "✅ Directorio detectado: build/"
+        else
+          echo "❌ Error: No se encontró directorio dist/ ni build/"
+          exit 1
+        fi
+    
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: build-files
-        path: dist/
+        path: ${{ steps.detect-build-dir.outputs.build_dir }}/
         retention-days: 7
     
     # ========================================
@@ -70,13 +85,15 @@ jobs:
     # - FTP_USERNAME: Usuario FTP
     # - FTP_PASSWORD: Contraseña FTP
     # ----------------------------------------
+    # NOTA: El directorio local se detecta automáticamente (dist/ o build/)
+    # según el framework utilizado (Vite usa dist/, Create React App usa build/)
     - name: Deploy to Hostinger via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
         server: ${{ secrets.FTP_SERVER }}  # Ejemplo: ftp.tudominio.com
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./dist/  # Directorio local con archivos compilados
+        local-dir: ./${{ steps.detect-build-dir.outputs.build_dir }}/  # Auto-detecta dist/ o build/
         server-dir: /public_html/  # Directorio remoto en el servidor
     
     # ========================================
@@ -85,4 +102,12 @@ jobs:
     # Para usar solo una opción, comenta la otra sección completa
     # Para usar ambas, deja ambas descomentadas (se ejecutarán en secuencia)
     # Asegúrate de configurar todos los secrets necesarios antes de hacer push
+    # 
+    # SOBRE LA DETECCIÓN AUTOMÁTICA:
+    # - El workflow ahora detecta automáticamente si tu proyecto usa dist/ (Vite)
+    #   o build/ (Create React App)
+    # - Si necesitas forzar un directorio específico, cambia la línea:
+    #   local-dir: ./${{ steps.detect-build-dir.outputs.build_dir }}/
+    #   por:
+    #   local-dir: ./dist/  (para Vite) o local-dir: ./build/  (para CRA)
     # ========================================
