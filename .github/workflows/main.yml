@@ -36,16 +36,40 @@ jobs:
         path: dist/
         retention-days: 7
     
-    # Descomentar y configurar para despliegue en Firebase
-    # - name: Deploy to Firebase
-    #   uses: FirebaseExtended/action-hosting-deploy@v0
-    #   with:
-    #     repoToken: '${{ secrets.GITHUB_TOKEN }}'
-    #     firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
-    #     channelId: live
-    #     projectId: tu-proyecto-firebase
+    # ========================================
+    # OPCIONES DE DESPLIEGUE
+    # ========================================
+    # Puedes activar una o ambas opciones de despliegue según tus necesidades:
+    # 1. Firebase Hosting (comentar/descomentar según necesites)
+    # 2. Hostinger via FTP (comentar/descomentar según necesites)
+    #
+    # IMPORTANTE: Configura los secrets necesarios en:
+    # Settings > Secrets and variables > Actions
+    # ========================================
     
-    # Despliegue en Hostinger via FTP
+    # ========================================
+    # OPCIÓN 1: Despliegue en Firebase Hosting
+    # ========================================
+    # Para activar Firebase, descomenta las siguientes líneas y configura:
+    # - FIREBASE_SERVICE_ACCOUNT: JSON del service account de Firebase
+    # - projectId: Reemplaza 'tu-proyecto-firebase' con tu ID real de proyecto
+    # ----------------------------------------
+    - name: Deploy to Firebase
+      uses: FirebaseExtended/action-hosting-deploy@v0
+      with:
+        repoToken: '${{ secrets.GITHUB_TOKEN }}'
+        firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+        channelId: live
+        projectId: tu-proyecto-firebase  # Reemplazar con tu projectId real
+    
+    # ========================================
+    # OPCIÓN 2: Despliegue en Hostinger via FTP
+    # ========================================
+    # Para activar Hostinger, descomenta las siguientes líneas y configura:
+    # - FTP_SERVER: Servidor FTP (ej: ftp.tudominio.com)
+    # - FTP_USERNAME: Usuario FTP
+    # - FTP_PASSWORD: Contraseña FTP
+    # ----------------------------------------
     - name: Deploy to Hostinger via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
@@ -54,3 +78,11 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./dist/  # Directorio local con archivos compilados
         server-dir: /public_html/  # Directorio remoto en el servidor
+    
+    # ========================================
+    # NOTAS SOBRE CONFIGURACIÓN:
+    # ========================================
+    # Para usar solo una opción, comenta la otra sección completa
+    # Para usar ambas, deja ambas descomentadas (se ejecutarán en secuencia)
+    # Asegúrate de configurar todos los secrets necesarios antes de hacer push
+    # ========================================
